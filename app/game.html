@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiggleGong</title>
+    <link rel="icon" href="assets/clock.ico" type ="image/x-icon">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            font-weight: 100;
+            font-style: normal;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: auto;
+            animation: flashBackground 2s infinite alternate !important;
+        }
+
+        @keyframes flashBackground {
+            0% {
+                background-color: white;
+            }
+            50% {
+                background-color: red;
+            }
+            100% {
+                background-color: white;
+            }
+        }
+
+        #difficulty_select {
+            width: 80%;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        
+        .custom_msg_text {
+            font-size: 24px;
+        }
+
+        #userGuess {
+            font-size: 20px;
+            font-family: 'Poppins', sans-serif;
+            padding: 5px;
+            width: 100px;
+        }
+
+        .button-17 {
+            align-items: center;
+            appearance: none;
+            background-color: #fff;
+            border-radius: 24px;
+            border-style: none;
+            box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px,rgba(0, 0, 0, .14) 0 6px 10px 0,rgba(0, 0, 0, .12) 0 1px 18px 0;
+            box-sizing: border-box;
+            color: #3c4043;
+            cursor: pointer;
+            display: inline-flex;
+            fill: currentcolor;
+            font-family: "Google Sans",Roboto,Arial,sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            height: 48px;
+            justify-content: center;
+            letter-spacing: .25px;
+            line-height: normal;
+            max-width: 100%;
+            overflow: visible;
+            padding: 2px 24px;
+            position: relative;
+            text-align: center;
+            text-transform: none;
+            transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1),opacity 15ms linear 30ms,transform 270ms cubic-bezier(0, 0, .2, 1) 0ms;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            width: auto;
+            will-change: transform,opacity;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Guessing Game</h1>
+    <div id="difficulty_select">
+        <h2>Select Difficulty:</h2>
+        <input type="radio" id="easy" name="difficulty" value="easy">
+        <label for="easy">Easy</label><br>
+        <input type="radio" id="medium" name="difficulty" value="medium">
+        <label for="medium">Medium</label><br>
+        <input type="radio" id="hard" name="difficulty" value="hard">
+        <label for="hard">Hard</label><br><br>
+        <button class="button-17" onclick="startGame()">Start Game</button>
+    </div>
+    <div id="game_section" style="display: none;">
+        <div id="msg_cont">
+            <p id="cstm_msg_text"></p>
+        </div>
+        <div id = "quote_text_cont">
+            <p id="quote_text"></p>
+        </div>
+        <p id="guess_instruction"></p>
+        <input type="number" id="userGuess" min="1" max="maxNumber" disabled><br><br>
+        <button class="button-17" id="guess_btn" onclick="checkGuess()" disabled>Guess!</button>
+        <p id="loading_message" style="display: none;">Loading...</p>
+        <p id="result"></p>
+    </div>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript">
+        function startGame() {
+            var difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            if (difficulty) {
+                document.getElementById("difficulty_select").style.display = "none";
+                document.getElementById("game_section").style.display = "block";
+                initializeGame(difficulty);
+            } else {
+                alert("Please select a difficulty!");
+            }
+        }
+
+        function initializeGame(difficulty) {
+            // Here you can adjust the game settings based on the selected difficulty
+            console.log("Selected difficulty:", difficulty);
+            switch (difficulty) {
+                case "easy":
+                    maxNumber = 5;
+                    break;
+                case "medium":
+                    maxNumber = 10;
+                    break;
+                case "hard":
+                    maxNumber = 20;
+                    break;
+                default:
+                    minNumber = 1;
+                    maxNumber = 10;
+            }
+            // Set the guess instruction dynamically
+            document.getElementById("guess_instruction").innerText = "Guess a number between 1 and " + maxNumber + ":";
+            // Set the max attribute of the input element
+            document.getElementById("userGuess").setAttribute("max", maxNumber);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            startAlarmCheck();
+        });
+
+        async function startAlarmCheck() {
+            // Display loading message
+            document.getElementById("loading_message").style.display = "block";
+
+            // Fetch the alarm data
+            var alarm = await eel.get_current_alarm()();
+            // Wait for 5 seconds before enabling input field and guess button
+            await new Promise(resolve => setTimeout(resolve, 10000));
+
+            // Enable input field and guess button
+            document.getElementById("userGuess").disabled = false;
+            document.getElementById("guess_btn").disabled = false;
+            document.getElementById("loading_message").style.display = "none";
+        }
+
+        async function checkGuess() {
+            var alarm = await eel.get_current_alarm()();
+            console.log("Alarm:", alarm);
+            // Display the selected msg
+            document.getElementById('cstm_msg_text').innerText = alarm['cstm_msg'];
+            // Generate a random number between 1 and 10
+            var targetNumber = Math.floor(Math.random() * 10) + 1;
+
+            var userGuess = parseInt(document.getElementById("userGuess").value);
+            if (userGuess === targetNumber) {
+                document.getElementById("result").innerText = "Congratulations! You guessed it right!";
+                eel.stop_beep_sound();
+                console.log("This is through the console.log", alarm);
+                eel.reset_alarm_state_delayed(alarm);
+                window.close();
+            } else {
+                document.getElementById("result").innerText = "Try again!";
+            }
+        }
+
+        function fetchQuote() {
+            // Custom quotes array
+            var customQuotes = [
+            "If you can't beat 'em, join 'em.",
+            "Only ugly people say beauty is on the inside.",
+            "Eat as much junk food as you want, it's all about balance.",
+            "Always borrow money from friends, they'll understand.",
+            "Never use a map or GPS, just follow your gut.",
+            "Never back up your computer, it's not that important.",
+            "Never gonna give you up.",
+            "Never gonna let you down.",
+            "Never gonna run around or desert you",
+            "Always procrastinate, things will work out eventually.",
+            "Ignore feedback, you know best.",
+            "Never apologize, it shows weakness.",
+            "Go back to sleep.",
+            "Don't listen to others, your opinion is the only one that matters.",
+            "Avoid feedback, criticism is unnecessary.",
+            "Join the dark side.",
+            "Never. Give up!",
+            "Plagiarism saves time.",
+            "Eagles may soar, but weasels don’t get sucked into jet engines.",
+            "They're probably judging you. No, definitely judging you.",
+            "Today's gonna be a day!",
+            "Don't try anything new. At least you won't make mistakes.",
+            "Violence is never the answer. It's a question and the answer is yes.",
+            "Hiyah! Eat this!",
+            "Give up and settle.",
+            "Grades do in fact define you.",
+            "Make excuses to ensure you are never wrong.",
+            "Life is too short. Make it shorter.",
+            "You can always do it tomorrow.",
+            "Try and try until you die."
+            ];
+
+            // Fetch a random quote from either the custom quotes array or the API
+            var randomIndex = Math.floor(Math.random() * (customQuotes.length + 1));
+            var selectedQuote;
+
+            selectedQuote = customQuotes[randomIndex];
+
+            // Display the selected quote
+            document.getElementById('quote_text').innerText = '"'+selectedQuote+'"';
+        }
+
+        setInterval(fetchQuote, 5000);
+
+        // Play beep sound when the page loads
+        window.onload = function() {
+            eel.play_music();
+        };
+    </script>
+</body>
+</html>

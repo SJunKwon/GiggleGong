@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiggleGong</title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+    <link rel="icon" href="assets/clock.ico" type ="image/x-icon">
+</head>
+<style>
+    h1 {
+        font-size: 48px;
+        color: white;        
+    }
+</style>
+<body>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div id="clock_container">
+        <h1 id="time_label"><span id="current_time"></span></h1>
+    </div>
+
+    <div id = "quote_text_cont">
+        <p id="quote_text"></p>
+    </div>
+
+    <div id="alarms_container">
+        <h2>Alarms</h2>
+        <ul id="alarms_list" class="scrollable_list">
+        </ul>
+    </div>
+
+    <div id="add_alarm_btn">
+        <button onclick="toCreateAlarm()">+</button>
+    </div>
+    <div id="check_game_btn">
+        <h2>Check Game</h2>
+        <button class="button-17" role="button"onclick="checkGame()">Check Game Now</button>
+    </div>
+
+    <section id="popAlert">
+        <aside>
+            <h2>Are You Sure Want to Delete?</h2>
+            <p>This action is final and you will be unable to recover any data?</p>
+            <button type="button" onclick="confirmDel()">Yes</button>
+            <button type="button" onclick="cancelDel()">No</button>
+        </aside>
+    </section>
+
+    <!-- Include Eel.js -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript">
+        function displayAlarms() {
+            console.log("Printing Alarms")
+            eel.get_alarms()(function(alarms) {
+                var alarmsList = document.getElementById("alarms_list");
+                alarmsList.innerHTML = "";
+                alarms.forEach(function(alarm, index) {
+                    var card = document.createElement("div");
+                    card.classList.add("alarm_card");
+
+                    var infoContainer = document.createElement("div");
+                    infoContainer.style.display = "flex";
+                    infoContainer.style.flexDirection = "column";
+
+                    var name = document.createElement("p");
+                    name.textContent = "Name: " + alarm['name'];
+
+                    var time = document.createElement("p");
+                    time.textContent = "Time: " + alarm['time'];
+
+                    var days = document.createElement("p");
+                    days.textContent = "Days: " + alarm['days'].join(", ");
+
+                    infoContainer.appendChild(name);
+                    infoContainer.appendChild(time);
+                    infoContainer.appendChild(days);
+
+                    var buttonContainer = document.createElement("div");
+                    buttonContainer.style.display = "flex";
+                    buttonContainer.style.flexDirection = "column";
+                    buttonContainer.style.alignItems = "center";
+
+                    // Edit button
+                    var editButton = document.createElement("button");
+                    var editIcon = document.createElement("img");
+                    editIcon.src = "/assets/edit.png"; // Set the source of your edit icon image
+                    editIcon.alt = "Edit";
+                    editButton.style.background = "none"; // Set background to none
+                    editButton.style.border = "none"; // Remove border
+                    editButton.style.padding = "0"; // Remove padding
+                    editIcon.style.width = "30px"; // Set the width of the icon
+                    editIcon.style.height = "30px"; // Set the height of the icon
+                    // Append the icon to the button
+                    editButton.appendChild(editIcon);
+                    editButton.onclick = function() {
+                        // Redirect to editAlarm.html with the alarm index as a query parameter
+                        window.location.href = "editAlarm.html?index=" + index;
+                    };
+
+                    // Delete button
+                    var deleteButton = document.createElement("button");
+                    var deleteIcon = document.createElement("img");
+                    deleteIcon.src = "/assets/trash.ico";
+                    deleteIcon.alt = "Delete";
+                    deleteButton.style.background = "none"; // Set background to none
+                    deleteButton.style.border = "none"; // Remove border
+                    deleteButton.style.padding = "0"; // Remove padding
+                    deleteButton.style.marginRight = "10px"; // Add margin to the right side
+                    // Adjust the size of the icon
+                    deleteIcon.style.width = "30px";
+                    deleteIcon.style.height = "30px";
+                    deleteButton.appendChild(deleteIcon);
+                    deleteButton.onclick = function() {
+                        deleteAlarm(index);
+                    };
+
+                    buttonContainer.appendChild(editButton);
+                    buttonContainer.appendChild(deleteButton);
+
+                    card.appendChild(infoContainer);
+                    card.appendChild(buttonContainer);
+
+                    alarmsList.appendChild(card);
+                });
+            });
+        }
+
+        function checkURL() {
+            var currentURL = window.location.href;
+            console.log(currentURL);
+        }
+        function deleteAlarm(index) {
+            let popup = document.getElementById('popAlert');
+            popup.classList.toggle('active');
+            // Store the index in a global variable to access it in the confirmDelete function
+            window.deleteIndex = index;
+        }
+
+        function confirmDel() {
+            let index = window.deleteIndex; // Retrieve the index from the global variable
+            if (index !== undefined) {
+                eel.del_alarms(index);
+                console.log("Delete alarm at index:", index);
+                displayAlarms();
+                let popup = document.getElementById('popAlert');
+                popup.classList.remove('active');
+            }
+        }
+
+        function cancelDel() {
+            console.log("Deletion canceled by user.");
+            // Hide the confirmation dialog
+            let popup = document.getElementById('popAlert');
+            popup.classList.remove('active');
+        }
+        
+        function toCreateAlarm() {
+            window.location.href = "createAlarm.html"; // Redirect to createAlarm.html
+        }
+
+        function update_time() {
+            var current_time = new Date().toLocaleTimeString(); // Get current time in JavaScript
+            document.getElementById("current_time").innerText = current_time;
+        }
+
+        function checkGame() {
+            console.log("Checking game...");
+            eel.game_check();
+        }
+
+        document.addEventListener('updateTimeEvent', function() {
+            update_time(); // Call update_time function defined in index.html
+        });
+
+        // Initially display alarms
+        displayAlarms();
+    </script>
+</body>
+</html>
