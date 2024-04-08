@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiggleGong</title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+    <link rel="icon" href="assets/clock.ico" type ="image/x-icon">
+</head>
+<style>
+    h1 {
+        color:white;
+    }
+</style>
+<body>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <h1>Create New Alarm</h1>
+
+    <div id="add_alarm_cont">
+        <div id="add_alarm">
+            <label for="name"><strong>Name:</strong></label>
+            <input type="text" id="name" name="name" required><br><br>
+            <label for="time"><strong>Time:</strong></label>
+            <input type="time" id="time" name="time" required><br><br>
+            <label for="days"><strong>Days:</strong></label><br>
+            <input type="checkbox" id="monday" name="day" value="Mon">
+            <label for="monday">Monday</label><br>
+            <input type="checkbox" id="tuesday" name="day" value="Tue">
+            <label for="tuesday">Tuesday</label><br>
+            <input type="checkbox" id="wednesday" name="day" value="Wed">
+            <label for="wednesday">Wednesday</label><br>
+            <input type="checkbox" id="thursday" name="day" value="Thu">
+            <label for="thursday">Thursday</label><br>
+            <input type="checkbox" id="friday" name="day" value="Fri">
+            <label for="friday">Friday</label><br>
+            <input type="checkbox" id="saturday" name="day" value="Sat">
+            <label for="saturday">Saturday</label><br>
+            <input type="checkbox" id="sunday" name="day" value="Sun">
+            <label for="sunday">Sunday</label><br>
+            <label for="cstm_msg"><strong>Custom Message:</strong></label><br>
+            <textarea id="cstm_msg" name="cstm_msg" rows="5" cols="50"></textarea><br><br>
+            <label for="music"><strong>Choose Music:</strong></label><br>
+            <input type="file" id="music" name="music" accept=".mp3, .wav"><br><br>
+            <button class="button-17" id="createAlarm_btn" onclick="saveAlarm()">Save Alarm</button>
+            <button class="button-17" id="createAlarm_btn" onclick="cancelAlarm()">Cancel</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript">
+        function saveAlarm() {
+            var name = document.getElementById("name").value;
+            var time = document.getElementById("time").value;
+            var selectedDays = getSelectedDays();
+            var cstm_msg = document.getElementById("cstm_msg").value;
+            var musicFile = document.getElementById("music").files[0];
+            if (musicFile) {
+                var reader = new FileReader();
+                reader.readAsDataURL(musicFile);
+                reader.onload = function () {
+                    var music_file = reader.result.split(",")[1];
+                    eel.add_alarm(name, time, selectedDays, cstm_msg, music_file)(function(response) {
+                        console.log(response);
+                        window.location.href = "index.html"; // For redirecting to index.html
+                    });
+                };
+                reader.onerror = function (error) {
+                    console.error('Error reading the file: ', error);
+                };
+            } else {
+                eel.add_alarm(name, time, selectedDays, cstm_msg, null)(function(response) {
+                    console.log(response);
+                    window.location.href = "index.html"; // For redirecting to index.html
+                });
+            }
+        }
+
+        function getSelectedDays() {
+            var selectedDays = [];
+            var checkboxes = document.getElementsByName("day");
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    selectedDays.push(checkboxes[i].value);
+                }
+            }
+            return selectedDays;
+        }
+
+        function cancelAlarm() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

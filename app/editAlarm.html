@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+    <link rel="icon" href="assets/clock.ico" type ="image/x-icon">
+    <title>GiggleGong</title>
+</head>
+<body>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <h1>Edit Alarm</h1>
+    <!-- Form to edit alarm details -->
+    <div id="edit_cont">
+        <form id="editAlarmForm">
+            <label for="editName">Name:</label>
+            <input type="name" id="editName" name="editName"><br><br>
+            <label for="editTime">Time:</label>
+            <input type="time" id="editTime" name="editTime" required><br><br>
+            <label for="editDays">Days:</label><br>
+            <input type="checkbox" id="editMon" name="day" value="Mon">
+            <label for="editMon">Monday</label><br>
+            <input type="checkbox" id="editTue" name="day" value="Tue">
+            <label for="editTue">Tuesday</label><br>
+            <input type="checkbox" id="editWed" name="day" value="Wed">
+            <label for="editWed">Wednesday</label><br>
+            <input type="checkbox" id="editThu" name="day" value="Thu">
+            <label for="editThu">Thursday</label><br>
+            <input type="checkbox" id="editFri" name="day" value="Fri">
+            <label for="editFri">Friday</label><br>
+            <input type="checkbox" id="editSat" name="day" value="Sat">
+            <label for="editSat">Saturday</label><br>
+            <input type="checkbox" id="editSun" name="day" value="Sun">
+            <label for="editSun">Sunday</label><br>
+            <label for="editMsg">Custom Message:</label><br>
+            <textarea id="editMsg" name="editMsg" rows="5" cols="50"></textarea><br><br>
+            <label for="editMusic"><strong>Choose Music:</strong></label><br>
+            <input type="file" id="editMusic" name="editMusic" accept=".mp3, .wav"><br><br>
+            <label for="musicFileName">Chosen Music Before:</label>
+            <span id="musicFileName"></span><br><br>
+            <button class="button-17" type="button" id="editAlarm_btn" onclick="submitEdit()">Save</button>
+            <button class="button-17" type="button" id="editAlarm_btn" onclick="cancelEdit()">Cancel</button>
+        </form>
+    </div>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript">
+        var params = new URLSearchParams(window.location.search);
+        var index = parseInt(params.get('index'));
+        console.log(index);
+        window.onload = function() {
+            eel.get_alarms()(function(alarms) {
+                if (index !== null) {
+                    var alarm = alarms[index];
+                    document.getElementById("editName").value = alarm['name']; // Set the name
+                    document.getElementById("editTime").value = alarm['time']; // Set the time
+                    // Populate days checkboxes if needed
+                    var days = alarm['days'];
+                    console.log(days);
+                    for (var i = 0; i < days.length; i++) {
+                        document.getElementById("edit" + days[i]).checked = true;
+                    }
+                    document.getElementById("editMsg").value = alarm['cstm_msg']; // Set custom message
+                    console.log("Reached Custome Message");
+                    // Set the file name if it exists
+                    if (alarm['musicFile']) {
+                        var fileName = alarm['musicFile'].split('/').pop();
+                        document.getElementById("musicFileName").textContent = fileName;
+                    }
+                }
+            });
+            
+        };
+
+        function submitEdit() {
+            var name = document.getElementById("editName").value;
+            var time = document.getElementById("editTime").value;
+            var days = getSelectedDays();
+            var cstm_msg = document.getElementById("editMsg").value;
+            var active = true;
+            var triggered = false;
+            var musicFile = document.getElementById("editMusic").files[0];
+            console.log(musicFile);
+            if (musicFile) {
+                var reader = new FileReader();
+                reader.readAsDataURL(musicFile);
+                reader.onload = function () {
+                    var music_file = reader.result.split(",")[1];
+                    // Call the edit_alarms function in main.py via Eel
+                    eel.edit_alarms(index, name, time, days, cstm_msg, music_file, true, false)(function(response) {
+                        console.log(response);
+                        window.location.href = "index.html";
+                    });
+                };
+                reader.onerror = function (error) {
+                    console.error('Error reading the file: ', error);
+                };
+            } else {
+                // Call the edit_alarms function in main.py via Eel
+                eel.edit_alarms(index, name, time, days, cstm_msg, null, true, false)(function(response) {
+                    console.log(response);
+                    window.location.href = "index.html";
+                });
+            }
+        }
+
+        function getSelectedDays() {
+            var selectedDays = [];
+            var checkboxes = document.getElementsByName("day");
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    selectedDays.push(checkboxes[i].value);
+                }
+            }
+            return selectedDays;
+        }
+
+        function cancelEdit() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
