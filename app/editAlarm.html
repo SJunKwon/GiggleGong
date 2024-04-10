@@ -7,6 +7,50 @@
     <link rel="icon" href="assets/clock.ico" type ="image/x-icon">
     <title>GiggleGong</title>
 </head>
+<style>
+    h1 {
+        color:white;
+    }
+
+    /* Style for the custom message textarea */
+    #editMsg {
+        font-family: 'Poppins', sans-serif;
+        width: 50%;
+        height: 100px;
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Style for the text and time labels */
+    label {
+        font-weight: bold;
+        font-size: 18px;
+        color: #333;
+    }
+
+    /* Style for the text and time input fields */
+    input[type="text"], input[type="time"] {
+        font-family: 'Poppins', sans-serif;
+        width: 50%;
+        padding: 8px;
+        margin: 5px 0;
+        font-size: 16px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+    }
+
+    input[type="file"] {
+        font-family: 'Poppins', sans-serif;
+        width: 80%;
+        padding: 8px;
+        margin: 5px 0;
+        font-size: 16px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
 <body>
     <div class="wave"></div>
     <div class="wave"></div>
@@ -16,7 +60,7 @@
     <div id="edit_cont">
         <form id="editAlarmForm">
             <label for="editName">Name:</label>
-            <input type="name" id="editName" name="editName"><br><br>
+            <input type="text" id="editName" name="editName"><br><br>
             <label for="editTime">Time:</label>
             <input type="time" id="editTime" name="editTime" required><br><br>
             <label for="editDays">Days:</label><br>

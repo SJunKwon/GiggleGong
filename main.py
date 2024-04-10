@@ -57,19 +57,19 @@ def add_alarm(name, time, days, cstm_msg, music_file):
         # Decode the base64 string to binary data
         music_data = base64.b64decode(music_file)
         # Generate a unique file name
-        music_filename = str(uuid.uuid4()) + ".mp3"  # You can use any suitable extension here
+        musicFile = str(uuid.uuid4()) + ".mp3"  # You can use any suitable extension here
         # Specify the directory to save the music file
         music_directory = 'saves/alarm_music'
         # Ensure the directory exists, create it if it doesn't
         if not os.path.exists(music_directory):
             os.makedirs(music_directory)
         # Save the music data to a file
-        music_file_path = os.path.join(music_directory, music_filename)
+        music_file_path = os.path.join(music_directory, musicFile)
         # Save the music data to a file
         with open(music_file_path, 'wb') as f:
             f.write(music_data)
         # Store the file path in the alarms dictionary
-        alarm = {'name': name, 'time': time, 'days': days, 'cstm_msg': cstm_msg, 'musicFile': music_filename, 'active': True, 'triggered': False}
+        alarm = {'name': name, 'time': time, 'days': days, 'cstm_msg': cstm_msg, 'musicFile': musicFile, 'active': True, 'triggered': False}
     else:
         alarm = {'name': name, 'time': time, 'days': days, 'cstm_msg': cstm_msg, 'musicFile': None, 'active': True, 'triggered': False}
 
@@ -134,6 +134,12 @@ def edit_alarms(index, name, time, days, cstm_msg, musicFile, active, triggered)
         alarms[index] = {'name': name,'time': time, 'days': days, 'cstm_msg': cstm_msg, 'musicFile': musicFile, 'active': active, 'triggered': triggered}
     else:
         alarms[index] = {'name': name, 'time': time, 'days': days, 'cstm_msg': cstm_msg, 'musicFile': None, 'active': True, 'triggered': False}
+        music_directory = 'saves/alarm_music'
+        # Delete the previous music file if it exists
+        if previous_music_file:
+            previous_music_file_path = os.path.join(music_directory, previous_music_file)
+            if os.path.exists(previous_music_file_path):
+                os.remove(previous_music_file_path)
     
     # Rewrite the entire CSV file with the updated alarm information
     with open(CSV_FILE, 'w', newline='') as csvfile:
@@ -188,12 +194,15 @@ def trigger_alarm(alarm):
     alarm['triggered'] = True
 
 @eel.expose
-def play_music(music_file):
+def play_music(musicFile):
+    global stop_beep
     pygame.mixer.init()
-    pygame.mixer.music.load(music_file)
+    music_dir = 'saves/alarm_music'
+    music_path = os.path.join(music_dir, musicFile)
+    pygame.mixer.music.load(music_path)
     pygame.mixer.music.play(-1)  # Play the music indefinitely (-1)
     while not stop_beep:
-        if music_file:
+        if musicFile:
             try:
                 pygame.time.Clock().tick(10)  # Adjust the playback speed if necessary
             except Exception as e:
@@ -212,7 +221,11 @@ def play_beep_sound():
 def stop_beep_sound():
     global stop_beep
     stop_beep = True
-    pygame.mixer.music.stop()  # Stop the music
+    if not pygame.get_init():
+        pygame.mixer.music.stop()  # Stop the music
+        pygame.mixer.quit()
+    else:
+        print("Pygame is not initialized.")
 
 # Function to reset the alarm state after a delay
 @eel.expose
@@ -230,10 +243,14 @@ def reset_alarm_state_delayed(alarm):
 def game_check():
     eel.show('game.html')
 
-@eel.expose
+'''
 def exit_program():
+    global reset_initated
     print("Exiting the program...")
     stop_beep_sound()  # Stop any background audio
     # Perform other shutdown actions as needed
+    if reset_initated == False:
+        sys.exit
+'''
 if __name__ == '__main__':
-    eel.start('index.html', size=(800, 600))
+    eel.start('index.html', mode="chromePort", size=(800, 600))

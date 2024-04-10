@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('E:\\Program_Files\\Python\\Python312\\Lib\\site-packages\\eel\\eel.js', 'eel'), ('app', 'app'),('saves', 'saves')],
+    datas=[('E:\\Program_Files\\Python\\Python312\\Lib\\site-packages\\eel\\eel.js', 'eel'), ('app', 'app'), ('GoogleChromePortable', 'GoogleChromePortable')],
     hiddenimports=['bottle_websocket'],
     hookspath=[],
     hooksconfig={},
@@ -30,7 +30,7 @@ exe = EXE(
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file=None
 )
 coll = COLLECT(
     exe,

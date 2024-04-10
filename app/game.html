@@ -21,6 +21,17 @@
             animation: flashBackground 2s infinite alternate !important;
         }
 
+        #game_section {
+            width: 80%;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+
         @keyframes flashBackground {
             0% {
                 background-color: white;
@@ -119,6 +130,7 @@
     <script type="text/javascript" src="/eel.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <script type="text/javascript">
+        var targetNumber; // Declare targetNumber variable globally
         function startGame() {
             var difficulty = document.querySelector('input[name="difficulty"]:checked').value;
             if (difficulty) {
@@ -151,6 +163,7 @@
             document.getElementById("guess_instruction").innerText = "Guess a number between 1 and " + maxNumber + ":";
             // Set the max attribute of the input element
             document.getElementById("userGuess").setAttribute("max", maxNumber);
+            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
         }
         document.addEventListener('DOMContentLoaded', function() {
             startAlarmCheck();
@@ -176,8 +189,6 @@
             console.log("Alarm:", alarm);
             // Display the selected msg
             document.getElementById('cstm_msg_text').innerText = alarm['cstm_msg'];
-            // Generate a random number between 1 and 10
-            var targetNumber = Math.floor(Math.random() * 10) + 1;
 
             var userGuess = parseInt(document.getElementById("userGuess").value);
             if (userGuess === targetNumber) {

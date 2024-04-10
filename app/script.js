@@ -30,7 +30,7 @@ window.addEventListener("keydown", function(event) {
         event.stopPropagation();
         return false;
     }
-}); 
+});
 window.oncontextmenu = function(event) {
     // block right-click / context-menu
     event.preventDefault();
