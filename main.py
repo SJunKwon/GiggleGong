@@ -243,14 +243,5 @@ def reset_alarm_state_delayed(alarm):
 def game_check():
     eel.show('game.html')
 
-'''
-def exit_program():
-    global reset_initated
-    print("Exiting the program...")
-    stop_beep_sound()  # Stop any background audio
-    # Perform other shutdown actions as needed
-    if reset_initated == False:
-        sys.exit
-'''
 if __name__ == '__main__':
     eel.start('index.html', mode="chromePort", size=(800, 600))
